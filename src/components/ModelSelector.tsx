@@ -72,6 +72,25 @@ export function ModelSelector({
     setStoreInitialized(true);
   }, [allModels, initialSelectedModels]);
 
+
+  // Helper function to determine selection state
+  const isModelSelected = (modelName?: string) => {
+    if (!storeInitialized) {
+      // During SSR and initial hydration, use initialSelectedModels
+      return modelName
+        ? initialSelectedModels.includes(modelName)
+        : initialSelectedModels.length === allModels.length;
+    } else if (activePriceTab === "none") {
+      // User has explicitly chosen to have nothing selected
+      return false;
+    } else {
+      // Normal case - check the store
+      return modelName
+        ? selectedModels.has(modelName)
+        : selectedModels.size === allModels.length;
+    }
+  };
+
   const inputColor = "#818cf8";
   const outputColor = "#22d3ee";
 
@@ -79,19 +98,7 @@ export function ModelSelector({
     {
       id: "select",
       header: () => {
-        // Check if all models are selected, considering store initialization
-        let allModelsSelected;
-
-        if (!storeInitialized) {
-          // During SSR and initial hydration, use initialSelectedModels
-          allModelsSelected = initialSelectedModels.length === allModels.length;
-        } else if (activePriceTab === "none") {
-          // User has explicitly chosen to have nothing selected
-          allModelsSelected = false;
-        } else {
-          // Normal case - check the store
-          allModelsSelected = selectedModels.size === allModels.length;
-        }
+        const allModelsSelected = isModelSelected();
 
         return (
           <Checkbox
@@ -113,19 +120,7 @@ export function ModelSelector({
       cell: ({ row }) => {
         const modelName = row.original.Name;
 
-        // Determine if this model is selected
-        let isSelected;
-
-        if (!storeInitialized) {
-          // During SSR and initial hydration, use initialSelectedModels
-          isSelected = initialSelectedModels.includes(modelName);
-        } else if (activePriceTab === "none") {
-          // User has explicitly chosen to have nothing selected
-          isSelected = false;
-        } else {
-          // Normal case - check the store
-          isSelected = selectedModels.has(modelName);
-        }
+        const isSelected = isModelSelected(modelName);
 
         return (
           <Checkbox
@@ -298,7 +293,7 @@ export function ModelSelector({
         </TableRow>
       );
     }
-  }, [table.getRowModel().rows, columns.length, selectedModels]);
+  }, [table.getRowModel().rows, columns.length]);
 
   // Calculate total and selected model counts
   const totalModels = allModels.length;
