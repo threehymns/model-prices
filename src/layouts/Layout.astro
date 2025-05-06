@@ -1,3 +1,8 @@
+---
+import "@/styles/global.css";
+import { AstroFont } from "astro-font";
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
@@ -6,17 +11,20 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
+		<AstroFont
+		config={[
+		  {
+			src: [],
+			name: "Geist",
+			googleFontsURL: 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap',
+			preload: true,
+			display: "swap",
+			selector: "body",
+			fallback: "sans-serif",
+		  },
+		]}/>
 	</head>
-	<body>
+	<body class="dark">
 		<slot />
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

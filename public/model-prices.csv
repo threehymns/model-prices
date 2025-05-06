@@ -1,0 +1,23 @@
+Name,Input,Output,Lab,Release Date,Slug,Selected,Artificial Analysis Intelligence Index
+Qwen3 235B A22B,$0.10,$0.10,qwen,2025-04-28,qwen3-235b-a22b,,62
+Gemini 2.0 Flash-Lite,$0.075,$0.30,google,2025-02-25,gemini-2.0-flash-lite-001,,41
+Mistral Small 3.1 24B,$0.10,$0.30,mistralai,2025-03-17,mistral-small-3.1-24b-instruct,,35
+Gemini 2.0 Flash,$0.10,$0.40,google,2025-02-05,gemini-2.0-flash-001,,48
+GPT-4.1 Nano,$0.10,$0.40,openai,2025-04-14,gpt-4.1-nano,,41
+Gemini 2.5 Flash Preview,$0.15,$0.60,google,2025-04-17,gemini-2.5-flash-preview,,48
+GPT-4o Mini,$0.15,$0.60,openai,2024-07-18,gpt-4o-mini,,36
+DeepSeek v3 0324,$0.27,$1.10,deepseek,2025-03-24,deepseek-chat-v3-0324,,53
+Grok 3 Mini Beta,$0.30,$0.50,x-ai,2025-04-09,grok-3-mini-beta,,67
+GPT-4.1 Mini,$0.40,$1.60,openai,2025-04-14,gpt-4.1-mini,,53
+DeepSeek r1,$0.55,$2.19,deepseek,2025-01-20,deepseek-r1,,60
+Gemini 2.5 Flash Preview (thinking),$0.15,$3.50,google,2025-04-17,gemini-2.5-flash-preview:thinking,,60
+o4 Mini,$1.10,$4.40,openai,2025-04-16,o4-mini,,70
+o3 Mini,$1.10,$4.40,openai,2025-01-31,o3-mini,no,63
+GPT-4.1,$2.00,$8.00,openai,2025-04-14,gpt-4.1,,53
+Gemini 2.5 Pro Preview,$1.25,$10.00,google,2025-04-17,gemini-2.5-pro-preview-03-25,,68
+GPT-4o,$2.50,$10.00,openai,2024-05-13,gpt-4o,,50
+Claude 3.5 Sonnet,$3.00,$15.00,anthropic,2024-10-22,claude-3.5-sonnet,no,44
+Claude 3.7 Sonnet,$3.00,$15.00,anthropic,2025-02-24,claude-3.7-sonnet,no,57
+Grok 3 Beta,$3.00,$15.00,x-ai,2025-04-09,grok-3-beta,no,51
+o3,$10.00,$40.00,openai,2025-04-16,o3,no,67
+o1,$15.00,$60.00,openai,2024-12-17,o1,no,62
