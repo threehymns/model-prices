@@ -106,10 +106,12 @@ export const ModelPriceChart = React.memo(function ModelPriceChart() {
   React.useEffect(() => {
     setChartData(processedChartData);
 
-    // Only turn off loading on initial load
+    // Only turn off loading when we have actual data on initial load
     if (initialLoadRef.current) {
-      setIsLoading(false);
-      initialLoadRef.current = false; // Mark initial load as complete
+      if (processedChartData.length > 0) {
+        setIsLoading(false);
+        initialLoadRef.current = false; // Mark initial load as complete only when we have data
+      }
     }
   }, [processedChartData]);
 
