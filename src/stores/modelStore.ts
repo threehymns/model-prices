@@ -128,7 +128,10 @@ export const setSorting = (
 ) => {
   if (typeof sorting === "function") {
     const current = modelStore.get();
-    modelStore.set({ ...current, sorting: sorting(current.sorting) });
+    modelStore.set((prev) => ({
+      ...prev,
+      sorting: sorting(prev.sorting),
+    }));
   } else {
     modelStore.set({ ...modelStore.get(), sorting });
   }
