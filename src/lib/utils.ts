@@ -52,10 +52,8 @@ export function calculateCombinedPrice(input: string, output: string): number {
 let labNameMap: Record<string, { name: string, slug: string }> = {};
 
 // Fetch and parse labs CSV
-export async function loadLabData() {
+export function loadLabData(csvText: string) {
   try {
-    const response = await fetch('/labs.csv');
-    const csvText = await response.text();
     const lines = csvText.trim().split('\n');
     const headers = lines[0].split(',');
 

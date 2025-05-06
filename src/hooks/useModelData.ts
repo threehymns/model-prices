@@ -11,8 +11,21 @@ export interface ModelData {
   Slug?: string;
   'Release Date'?: string;
   Selected?: string; // Optional as it might not be present or 'no'
+  
+  // Server-side calculated fields
+  releaseDate?: string;
+  formattedReleaseDate?: string;
+  inputPrice?: number;
+  outputPrice?: number;
+  combinedPrice?: number;
+  formattedCombinedPrice?: string;
+  intelligence?: number;
+  value?: number;
+  formattedValue?: string;
+  labFullName?: string;
+  
   // Allow for dynamic properties from CSV
-  [key: string]: string | undefined;
+  [key: string]: string | number | undefined;
 }
 
 // Define the return type of the hook

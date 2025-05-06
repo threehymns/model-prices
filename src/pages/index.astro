@@ -1,8 +1,170 @@
 ---
-import ModelsTable from '@/components/Dashboard';
-import Layout from '@/layouts/Layout.astro';
+import {
+    parseCsv,
+    loadLabData,
+    formatDollar,
+    calculateCombinedPrice,
+    getFullLabName,
+} from "@/lib/utils";
+import type { ModelData } from "@/hooks/useModelData"; // Import the type
+import {
+    modelStore,
+    setAllModels,
+    setSelectedModels,
+} from "@/stores/modelStore"; // Import the store and actions
+import Layout from "@/layouts/Layout.astro";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ModelPriceChart } from "@/components/ModelPriceChart";
+import { ModelSettings } from "@/components/ModelSettings";
+import { ModelSelector } from "@/components/ModelSelector";
+
+// Use import.meta.glob to import CSV files as raw text
+const modelCsvModule = import.meta.glob("/public/model-prices.csv", {
+    query: "?raw",
+    import: "default",
+});
+const labsCsvModule = import.meta.glob("/public/labs.csv", {
+    query: "?raw",
+    import: "default",
+});
+
+// Get the raw text content from the imported modules and assert type
+const modelCsvText = await (modelCsvModule[
+    "/public/model-prices.csv"
+]() as Promise<string>);
+const labsCsvText = await (labsCsvModule[
+    "/public/labs.csv"
+]() as Promise<string>);
+
+// Parse model data
+const allModels: ModelData[] = parseCsv(modelCsvText) as ModelData[];
+
+// Load lab data using the parsed text
+loadLabData(labsCsvText);
+
+// Initialize selected models based on 'Selected' column or default logic
+const initialSelectedModels = new Set(
+    allModels
+        .filter((item) => !item.Selected || item.Selected !== "no")
+        .map((item) => item.Name),
+);
+
+// Perform all calculations on the server side
+const fullyProcessedModels = allModels.map((item) => {
+    // Format numeric values
+    const inputPrice = formatDollar(item.Input);
+    const outputPrice = formatDollar(item.Output);
+    const combinedPrice = calculateCombinedPrice(item.Input, item.Output);
+
+    // Calculate intelligence and value metrics
+    const intelligence = Number(
+        item["Artificial Analysis Intelligence Index"] || 0,
+    );
+    const value =
+        combinedPrice > 0
+            ? ((intelligence - 34) * 10) / (combinedPrice * 1) / 10
+            : 0;
+
+    // Format date
+    const releaseDate = item["Release Date"] || "-";
+    let formattedDate = "-";
+    if (releaseDate && releaseDate !== "-") {
+        const date = new Date(releaseDate);
+        formattedDate = date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        });
+    }
+
+    // Get lab full name
+    const labFullName = getFullLabName(item.Lab) || "-";
+
+    // Return the fully processed item with all calculations done
+    return {
+        ...item,
+        releaseDate: releaseDate,
+        formattedReleaseDate: formattedDate,
+        inputPrice: inputPrice,
+        outputPrice: outputPrice,
+        combinedPrice: combinedPrice,
+        formattedCombinedPrice: `$${combinedPrice.toFixed(2)}`,
+        intelligence: intelligence,
+        value: value,
+        formattedValue: value.toFixed(0),
+        labFullName: labFullName,
+    };
+});
+
+// Pass server-fetched and pre-processed data to the client component for store initialization
+// The store will be initialized on the client side in ModelSelector.tsx
 ---
 
 <Layout>
-	<ModelsTable client:load />
+    <script type="application/json" id="initial-data" is:inline>
+        {JSON.stringify({
+            models: fullyProcessedModels,
+            selected: Array.from(initialSelectedModels)
+        })}
+    </script>
+
+    {/* Import the store module and initialize it */}
+    <script>
+        import { setAllModels, setSelectedModels } from "../stores/modelStore";
+
+
+        const dataElement = document.getElementById("initial-data");
+
+        if (!dataElement) {
+            throw new Error("Failed to load initial data: Element not found");
+        }
+
+        const { models, selected } = JSON.parse(dataElement.textContent || '{}');
+
+        setAllModels(models);
+        setSelectedModels(new Set(selected));
+    </script>
+
+    <main class="container mx-auto py-10">
+        <Card className="mb-8">
+            <CardHeader>
+                <h2 class="text-lg font-semibold">Model Prices</h2>
+            </CardHeader>
+            <CardContent>
+                <ModelPriceChart client:load />
+                <ModelSettings client:visible />
+            </CardContent>
+        </Card>
+
+        <ModelSelector
+            client:load
+            allModels={fullyProcessedModels}
+            initialSelectedModels={Array.from(initialSelectedModels)}
+        />
+
+        <footer class="mt-12 text-center py-6 border-t border-accent">
+            <div class="text-muted-foreground">
+                <p class="mb-2">
+                    Based on code by Theo and <a
+                        href="https://t3.chat"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-purple-400 hover:text-purple-300 transition-colors"
+                    >
+                        T3 Chat
+                    </a>
+
+                    <span class="text-muted-foreground/50">•</span>
+                    <a
+                        href="https://v0.dev/chat/xWqctb5ZQhR"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        Fork this on V0
+                    </a>
+                </p>
+            </div>
+        </footer>
+    </main>
 </Layout>
