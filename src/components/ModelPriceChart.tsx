@@ -37,7 +37,14 @@ const CustomTooltip = React.memo(({ active, payload, label }: any) => {
 
 export const ModelPriceChart = React.memo(function ModelPriceChart() {
   // Initialize with data on mount rather than waiting for effects
-  const [chartData, setChartData] = React.useState<any[]>([]);
+  interface ChartDataPoint {
+    name: string;
+    Input: number;
+    Output: number;
+    Combined: number;
+    Value: number;
+  }
+  const [chartData, setChartData] = React.useState<ChartDataPoint[]>([]);
   const [isLoading, setIsLoading] = React.useState(false); // Start with false to avoid unnecessary loading state
   const initialLoadRef = React.useRef(true); // Track if this is the initial load
   const { allModels, selectedModels, displayMode, sorting } =
