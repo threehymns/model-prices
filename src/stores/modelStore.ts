@@ -25,7 +25,7 @@ export const setAllModels = (models: ModelData[]) => {
 
 export const setSelectedModels = (models: string[] | Set<string>) => {
   const newSet = models instanceof Set ? models : new Set(models);
-  modelStore.set({ ...modelStore.get(), selectedModels: newSet });
+  modelStore.set({ ...modelStore.get(), selectedModels: newSet, activePriceTab: "custom" });
 };
 
 export const toggleModelSelection = (modelName: string) => {
@@ -128,10 +128,11 @@ export const setSorting = (
 ) => {
   if (typeof sorting === "function") {
     const current = modelStore.get();
-    modelStore.set((prev) => ({
-      ...prev,
-      sorting: sorting(prev.sorting),
-    }));
+    const newSorting = sorting(current.sorting);
+    modelStore.set({
+      ...current,
+      sorting: newSorting,
+    });
   } else {
     modelStore.set({ ...modelStore.get(), sorting });
   }

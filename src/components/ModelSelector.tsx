@@ -54,42 +54,41 @@ export function ModelSelector({
 
   // Initialize the store with initialSelectedModels on first render
   React.useEffect(() => {
-    // Only set if the store is empty and we have initial models
-    if (selectedModels.size === 0 && initialSelectedModels.length > 0) {
-      setSelectedModels(initialSelectedModels);
-    } else if (
-      selectedModels.size === 0 &&
-      initialSelectedModels.length === 0
-    ) {
-      // Make sure we have an empty set rather than undefined
-      setSelectedModels(new Set());
+    if (!storeInitialized) {
+      // Initialize allModels in the store first
+      setAllModels(allModels);
+      
+      // Initialize selected models from initialSelectedModels
+      if (initialSelectedModels.length > 0) {
+        setSelectedModels(new Set(initialSelectedModels));
+      } else {
+        // Make sure we have an empty set rather than undefined
+        setSelectedModels(new Set());
+      }
+      
+      // Mark the store as initialized
+      setStoreInitialized(true);
     }
-
-    // Initialize allModels in the store
-    setAllModels(allModels);
-
-    // Mark the store as initialized
-    setStoreInitialized(true);
-  }, [allModels, initialSelectedModels]);
+  }, []);
 
 
   // Helper function to determine selection state
-  const isModelSelected = (modelName?: string) => {
-    if (!storeInitialized) {
-      // During SSR and initial hydration, use initialSelectedModels
-      return modelName
-        ? initialSelectedModels.includes(modelName)
-        : initialSelectedModels.length === allModels.length;
-    } else if (activePriceTab === "none") {
-      // User has explicitly chosen to have nothing selected
-      return false;
-    } else {
-      // Normal case - check the store
-      return modelName
-        ? selectedModels.has(modelName)
-        : selectedModels.size === allModels.length;
-    }
-  };
+  const isModelSelected = React.useCallback(
+    (modelName?: string) => {
+      if (activePriceTab === "none") {
+        // User has explicitly chosen to have nothing selected
+        return false;
+      }
+      
+      // Check the actual store values
+      if (modelName) {
+        return selectedModels.has(modelName);
+      } else {
+        return selectedModels.size === allModels.length;
+      }
+    },
+    [selectedModels, allModels.length, activePriceTab]
+  );
 
   const inputColor = "#818cf8";
   const outputColor = "#22d3ee";
@@ -98,17 +97,19 @@ export function ModelSelector({
     {
       id: "select",
       header: () => {
-        const allModelsSelected = isModelSelected();
+        // For the header checkbox, check if all models are selected
+        // Before hydration, use initialSelectedModels; after hydration, use the store
+        const allSelected = !storeInitialized
+          ? initialSelectedModels.length === allModels.length
+          : selectedModels.size === allModels.length;
 
         return (
           <Checkbox
             id="select-all"
-            checked={allModelsSelected}
+            checked={allSelected}
             onCheckedChange={() => {
-              if (allModelsSelected) {
+              if (allSelected) {
                 deselectAllModels();
-                // Force size to be non-zero to prevent fallback to initialSelectedModels
-                setSelectedModels(new Set());
               } else {
                 selectAllModels();
               }
@@ -119,14 +120,19 @@ export function ModelSelector({
       },
       cell: ({ row }) => {
         const modelName = row.original.Name;
-
-        const isSelected = isModelSelected(modelName);
+        
+        // Before hydration, check initialSelectedModels; after hydration, check the store
+        const isSelected = !storeInitialized
+          ? initialSelectedModels.includes(modelName)
+          : selectedModels.has(modelName);
 
         return (
           <Checkbox
             id={modelName}
             checked={isSelected}
-            onCheckedChange={() => toggleModelSelection(modelName)}
+            onCheckedChange={() => {
+              toggleModelSelection(modelName);
+            }}
             aria-label={`Select ${modelName}`}
           />
         );
@@ -267,16 +273,18 @@ export function ModelSelector({
         originalRow.Lab.toLowerCase().includes(search)
       );
     },
+    meta: {
+      selectedModels, // Pass this to ensure re-renders on selection changes
+    },
   });
 
   const memoizedTableBody = React.useMemo(() => {
     if (table.getRowModel().rows?.length) {
       return table.getRowModel().rows.map((row) => (
-        <TableRow
-          key={row.id}
-          data-state={row.getIsSelected() && "selected"}
-          className="odd:bg-background/20"
-        >
+          <TableRow
+            key={`${row.id}-${(!storeInitialized ? initialSelectedModels.includes(row.original.Name) : selectedModels.has(row.original.Name)) ? 'selected' : 'unselected'}`}
+            className={`odd:bg-background/20 ${(!storeInitialized ? initialSelectedModels.includes(row.original.Name) : selectedModels.has(row.original.Name)) ? '' : 'opacity-50'}`}
+          >
           {row.getVisibleCells().map((cell) => (
             <TableCell key={cell.id}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -293,22 +301,13 @@ export function ModelSelector({
         </TableRow>
       );
     }
-  }, [table.getRowModel().rows, columns.length]);
+  }, [table.getRowModel().rows, columns.length, selectedModels.size, initialSelectedModels, storeInitialized]);
 
   // Calculate total and selected model counts
   const totalModels = allModels.length;
-  let selectedCount;
-
-  if (!storeInitialized) {
-    // During SSR and initial hydration, use initialSelectedModels
-    selectedCount = initialSelectedModels.length;
-  } else if (activePriceTab === "none") {
-    // User has explicitly chosen to have nothing selected
-    selectedCount = 0;
-  } else {
-    // Normal case - use the store
-    selectedCount = selectedModels.size;
-  }
+  const selectedCount = !storeInitialized
+    ? initialSelectedModels.length // Before hydration, use initialSelectedModels
+    : (activePriceTab === "none" ? 0 : selectedModels.size); // After hydration, use the store
 
   return (
     <section className="mt-10 mx-auto max-w-5xl">
