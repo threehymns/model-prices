@@ -101,26 +101,25 @@ const fullyProcessedModels = allModels.map((item) => {
 ---
 
 <Layout>
-    {/* Make data available to the inline script */}
-    <script
-        is:inline
-        define:vars={{
+    <script type="application/json" id="initial-data" is:inline>
+        {JSON.stringify({
             models: fullyProcessedModels,
-            selected: Array.from(initialSelectedModels),
-        }}
-    >
-        // Make data available globally - serialize to avoid reference issues
-        window.__INITIAL_DATA__ = {
-            models: JSON.parse(JSON.stringify(models)),
-            selected: JSON.parse(JSON.stringify(selected)),
-        };
+            selected: Array.from(initialSelectedModels)
+        })}
     </script>
 
     {/* Import the store module and initialize it */}
     <script>
         import { setAllModels, setSelectedModels } from "../stores/modelStore";
 
-        const { models, selected } = window.__INITIAL_DATA__;
+
+        const dataElement = document.getElementById("initial-data");
+
+        if (!dataElement) {
+            throw new Error("Failed to load initial data: Element not found");
+        }
+
+        const { models, selected } = JSON.parse(dataElement.textContent || '{}');
 
         setAllModels(models);
         setSelectedModels(new Set(selected));
