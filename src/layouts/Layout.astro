@@ -5,26 +5,28 @@ import { AstroFont } from "astro-font";
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-		<!-- <AstroFont
-		config={[
-		  {
-			src: [],
-			name: "Geist",
-			googleFontsURL: 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap',
-			preload: true,
-			display: "swap",
-			selector: "body",
-			fallback: "sans-serif",
-		  },
-		]}/> -->
-	</head>
-	<body class="dark">
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro Basics</title>
+    <AstroFont
+      config={[
+        {
+          src: [],
+          name: "Geist",
+          googleFontsURL:
+            "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap",
+          preload: true,
+          display: "swap",
+          selector: "body",
+          fallback: "sans-serif",
+        },
+      ]}
+    />
+  </head>
+  <body class="dark">
+    <slot />
+  </body>
 </html>
