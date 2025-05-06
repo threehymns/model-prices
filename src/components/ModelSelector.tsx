@@ -70,7 +70,7 @@ export function ModelSelector({
 
     // Mark the store as initialized
     setStoreInitialized(true);
-  }, []);
+  }, [allModels, initialSelectedModels]);
 
   const inputColor = "#818cf8";
   const outputColor = "#22d3ee";
