@@ -44,12 +44,13 @@ export const ModelPriceChart = React.memo(function ModelPriceChart() {
     useStore(modelStore);
 
   // Memoize sorted models to prevent recalculation when unrelated state changes
-  const sortedFilteredModels = React.useMemo(() => {
-    // Only show loading state on initial load, not on selection changes
-    if (initialLoadRef.current) {
-      setIsLoading(true);
-    }
+  // Show a loading overlay only on first mount
+  React.useEffect(() => {
+    if (initialLoadRef.current) setIsLoading(true);
+  }, []);
 
+  const sortedFilteredModels = React.useMemo(() => {
+    // …rest of your memoized filtering/sorting logic…
     const sortedModels = [...allModels].sort((a, b) => {
       if (!sorting || sorting.length === 0) {
         return 0;
