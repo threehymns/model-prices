@@ -1,28 +1,15 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useStore } from "@nanostores/react";
+import { modelStore, setActivePriceTab, setDisplayMode } from "../stores/modelStore";
 
-// Define props for the component
-interface ModelSettingsProps {
-  activePriceTab: string; // e.g., 'all', 'low', 'mid', 'high', 'custom', 'none'
-  setActivePriceTab: (tab: string) => void;
-  displayMode: string; // e.g., 'both', 'input', 'output', 'combined'
-  setDisplayMode: (mode: string) => void;
-}
+export function ModelSettings() {
+  const { activePriceTab, displayMode } = useStore(modelStore);
 
-export function ModelSettings({
-  activePriceTab,
-  setActivePriceTab,
-  displayMode,
-  setDisplayMode,
-}: ModelSettingsProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 max-w-2xl">
       {/* Price Range Filter */}
       <div>
         <h3 className="text-sm font-medium mb-2 text-muted-foreground">Price Range</h3>
-        {/* Note: The hook now sets activePriceTab to 'custom' or 'none'
-                for manual selections. The Tabs component might not visually reflect
-                this unless we add specific triggers or handle it differently.
-                For now, it controls setting the predefined ranges. */}
         <Tabs value={activePriceTab} onValueChange={setActivePriceTab}>
           <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="all">All</TabsTrigger>
